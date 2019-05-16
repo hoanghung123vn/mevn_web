@@ -11,11 +11,19 @@ app.use(morgan('combined'))
 app.use(bodyParse.json())
 app.use(cors())
 
-mongoose.connect('mongodb://localhost/movie_rating_app').then(() => {
-  console.log('Connection has been made')
+mongoose.connect('mongodb://localhost/movie_rating_app', () => {
+  console.log('Connected')
 }).catch(err => {
-  console.error(err, err.stack)
+  console.error('App starting error', err.stack)
   process.exit(1)
+})
+
+// Include controllers
+fs.readdirSync('controllers').forEach(file => {
+  if (file.substr(-3) === '.js') {
+    const route = require('./controllers/' + file)
+    route.controller(app)
+  }
 })
 
 router.get('/', (req, res) => {
