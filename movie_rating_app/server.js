@@ -1,15 +1,25 @@
 const express = require('express')
-const bodyParse = require('body-parser')
+const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const fs = require('fs')
+const jwt = require('jsonwebtoken')
+const passport = require('passport')
+const passportJWT = require('passport-jwt')
+const ExtractJwt = passportJWT.ExtractJwt
+const JwtStrategy = passportJWT.Strategy
+const jwtOptions = {}
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt')
+jwtOptions.secretOrKey = 'movieratingapplicationsecretkey'
 
 const app = express()
 const router = express.Router()
 app.use(morgan('combined'))
-app.use(bodyParse.json())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
+app.use(passport.initialize())
 
 mongoose.connect('mongodb://localhost/movie_rating_app', () => {
   console.log('Connected')
