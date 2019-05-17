@@ -33,7 +33,7 @@ module.exports.controller = (app) => {
             if (error) throw error
             if (isMatch) {
               const payload = { id: user.id }
-              const token = jwt.sign(payload, jwtOptions.secretOrKey);
+              const token = jwt.sign(payload, jwtOptions.secretOrKey)
               res.json({ message: 'ok', token })
             } else {
               res.status(401).json({ message: 'The password is incorect!' })

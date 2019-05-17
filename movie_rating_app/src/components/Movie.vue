@@ -8,7 +8,7 @@
             <span class="grey--text">{{movie.release_year}} - {{movie.genre}}</span>
           </div>
         </v-card-title>
-        <v-btn flat v-if="true" @click="rate">Rate this movie</v-btn>
+        <v-btn flat v-if="true" @click="rate" color="primary">Rate this movie</v-btn>
         <v-card-text>{{movie.description}}</v-card-text>
       </v-card>
     </v-flex>
@@ -58,7 +58,7 @@ export default {
     async fetchMovie() {
       return axios({
         method: "get",
-        url: `http://localhost:8081/api/movies/${this.$route.params.id}`
+        url: `/api/movies/${this.$route.params.id}`
       })
         .then(response => {
           this.movie = response.data;
@@ -82,7 +82,7 @@ export default {
           },
           url: `http://localhost:8081/movies/rate/${MovieId}`,
           headers: {
-            ContentType: "application/json"
+            "Content-Type": "application/json"
           }
         })
           .then(() => {

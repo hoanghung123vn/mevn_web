@@ -1,16 +1,8 @@
 <template>
   <v-form v-model="valid" ref="form" lazy-validation>
-    <v-text-field label="Name" v-model="name" required></v-text-field>
     <v-text-field label="Email" v-model="email" :rules="emailRules" required></v-text-field>
     <v-text-field label="Password" v-model="password" type="password" required></v-text-field>
-    <v-text-field
-      name="input-7-1"
-      label="Confirm Password"
-      v-model="confirm_password"
-      type="password"
-      required
-    ></v-text-field>
-    <v-btn @click="submit" :disabled="!valid">submit</v-btn>
+    <v-btn @click="submit" :disabled="!valid">login</v-btn>
     <v-btn @click="clear">clear</v-btn>
   </v-form>
 </template>
@@ -20,10 +12,8 @@ import axios from "axios";
 export default {
   data: () => ({
     valid: true,
-    name: "",
     email: "",
     password: "",
-    confirm_password: "",
     emailRules: [
       v => !!v || "Email is required",
       v => /\S+@\S+\.\S+/.test(v) || "Email must be valid"
@@ -35,25 +25,23 @@ export default {
         return axios({
           method: "post",
           data: {
-            name: this.name,
             email: this.email,
             password: this.password
           },
-          url: "/users/register",
+          url: "/users/login",
           headers: {
             "Content-Type": "application/json"
           }
         })
-          .then(() => {
-            this.$swal(
-              "Great!",
-              "You have been successfully registered!",
-              "success"
-            );
+          .then(response => {
+            window.localStorage.setItem("auth", response.data.token);
+            this.$swal("Great!", "You are ready to start", "success");
+            this.$router.push({ name: "Home" });
           })
           .catch(error => {
             const message = error.response.data.message;
-            this.$swal("Oh oo!", `${message}`, "error");
+            this.$swal("Oh oo!", `${message}`);
+            this.$router.push({ name: "Login" });
           });
       }
     },
@@ -63,3 +51,4 @@ export default {
   }
 };
 </script>
+
