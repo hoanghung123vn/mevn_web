@@ -25,7 +25,11 @@
       <v-toolbar-title>Home</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat v-bind:to="{name: 'AddMovie'}">Add Movie</v-btn>
+        <v-btn id="add_movie_link" flat v-if="current_user" :to="{name: 'AddMovie'}">Add Movie</v-btn>
+        <v-btn id="user_email" flat v-if="current_user">{{current_user.email}}</v-btn>
+        <v-btn id="register_btn" flat v-if="!current_user" :to="{name: 'Register'}">Register</v-btn>
+        <v-btn id="login_btn" flat v-if="!current_user" :to="{name: 'Login'}">Login</v-btn>
+        <v-btn id="logout_btn" flat v-if="current_user" @click="logout">Logout</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -42,10 +46,47 @@
 </template>
 <script>
 import "./assets/stylesheets/main.css";
+import bus from "./bus";
+import axios from "axios";
 export default {
-  data: () => ({ drawer: null }),
+  data: () => ({
+    drawer: null,
+    current_user: null
+  }),
   props: {
     source: String
+  },
+  mounted() {
+    this.fetchUser();
+    this.listenToEvents();
+  },
+  methods: {
+    listenToEvents() {
+      bus.$on("refreshUser", () => {
+        this.fetchUser();
+      });
+    },
+    async fetchUser() {
+      return axios({
+        method: "get",
+        url: "/api/current_user"
+      })
+        .then(response => {
+          this.current_user = response.data.current_user;
+        })
+        .catch(() => {});
+    },
+    logout() {
+      return axios({
+        method: "get",
+        url: "/api/logout"
+      })
+        .then(() => {
+          bus.$emit("refreshUser");
+          this.$router.push({ name: "Home" });
+        })
+        .catch(() => {});
+    }
   }
 };
 </script>

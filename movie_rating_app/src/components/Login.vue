@@ -9,6 +9,7 @@
 
 <script>
 import axios from "axios";
+import bus from "../bus";
 export default {
   data: () => ({
     valid: true,
@@ -34,8 +35,8 @@ export default {
           }
         })
           .then(response => {
-            window.localStorage.setItem("auth", response.data.token);
             this.$swal("Great!", "You are ready to start", "success");
+            bus.$emit("refreshUser");
             this.$router.push({ name: "Home" });
           })
           .catch(error => {

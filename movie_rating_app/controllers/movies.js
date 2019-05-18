@@ -1,6 +1,5 @@
 const MovieModel = require('../models/Movie')
 const RatingModel = require('../models/Rating')
-const passport = require('passport')
 
 module.exports.controller = (app) => {
   // fetch all movies

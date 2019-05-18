@@ -4,14 +4,9 @@ const cors = require('cors')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const fs = require('fs')
-const jwt = require('jsonwebtoken')
+const session = require('express-session')
+const config = require('./config/Config')
 const passport = require('passport')
-const passportJWT = require('passport-jwt')
-const ExtractJwt = passportJWT.ExtractJwt
-const JwtStrategy = passportJWT.Strategy
-const jwtOptions = {}
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt')
-jwtOptions.secretOrKey = 'movieratingapplicationsecretkey'
 
 const app = express()
 const router = express.Router()
@@ -22,9 +17,16 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
+app.use(session({
+  secret: config.SECRET,
+  resave: true,
+  saveUninitialized: true,
+  cookie: { httpOnly: false }
+}))
 app.use(passport.initialize())
+app.use(passport.session())
 
-mongoose.connect('mongodb://localhost/movie_rating_app', () => {
+mongoose.connect(config.DB, () => {
   console.log('Connected')
 }).catch(err => {
   console.error('App starting error', err.stack)
@@ -41,6 +43,25 @@ fs.readdirSync('controllers').forEach(file => {
 
 app.use(history())
 app.use(serveStatic(__dirname + '/dist'))
+
+router.get('/api/current_user', isLoggedIn, (req, res) => {
+  if (req.user) {
+    res.send({ current_user: req.user })
+  } else {
+    res.send({ success: false, msg: 'Unauthorized' })
+  }
+})
+
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated) return next()
+  res.redirect('/')
+  console.log('Error, auth failed!')
+}
+
+router.get('/api/logout', (req, res) => {
+  req.logout()
+  res.send()
+})
 
 router.get('/', (req, res) => {
   res.json({ message: 'API Initialized!' })
